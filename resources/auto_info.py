@@ -5,6 +5,7 @@ from concurrent.futures import as_completed
 from requests_futures.sessions import FuturesSession
 from datetime import datetime
 import xmltodict
+
 auto_info = Blueprint('auto_info', 'auto_info')
 
 session = FuturesSession()
@@ -52,7 +53,7 @@ def get_models():
         list_of_models.append(item['value'])
 
     return jsonify(
-        modles=list_of_models
+        models=list_of_models
     ), 200
 
 @auto_info.route('/get_options', methods=['GET'])
@@ -68,4 +69,24 @@ def get_options():
 
     return jsonify(
         options=list_of_options
+    ), 200
+
+@auto_info.route('/get_auto_info_by_govid', methods=['GET'])
+@cache.cached(timeout=86400, query_string=True)
+def get_by_govid():
+    r = requests.get('https://www.fueleconomy.gov/ws/rest/vehicle/%s' % (request.args.get('id')))
+
+    dict_from_xml_vehicle = xmltodict.parse(r.content)
+
+    return jsonify(
+        year=dict_from_xml_vehicle['vehicle']['year'],
+        make=dict_from_xml_vehicle['vehicle']['make'],
+        model=dict_from_xml_vehicle['vehicle']['model'],
+        fuel=dict_from_xml_vehicle['vehicle']['fuelType'],
+        city=dict_from_xml_vehicle['vehicle']['city08'],
+        highway=dict_from_xml_vehicle['vehicle']['highway08'],
+        trans=dict_from_xml_vehicle['vehicle']['trany'],
+        cylinders=dict_from_xml_vehicle['vehicle']['cylinders'],
+        drive=dict_from_xml_vehicle['vehicle']['drive']
+        
     ), 200
