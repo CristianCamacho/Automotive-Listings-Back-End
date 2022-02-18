@@ -6,11 +6,24 @@ from datetime import date
 
 listings = Blueprint('listings', 'listings')
 
+
 @listings.route('get_listings', methods=['GET'])
 def get_listings():
-    return jsonify(
-        result='success'
-    ), 200
+    listings_dict = []
+
+    try:
+        for listing in models.Listings.select():
+            print(listing)
+            listings_dict.append(model_to_dict(listing))
+        return jsonify(
+            listings=listings_dict,
+            result='success'
+        ), 200
+    except:
+        return jsonify(
+            message='Could not retreive listings.'
+        ), 204
+
 
 @listings.route('create_listing', methods=['POST'])
 def create_listing():
@@ -18,7 +31,7 @@ def create_listing():
 
     try:
         created_listing = models.Listings.create(
-            gov_vehicle_id = payload['govid'],
+            gov_vehicle_id=payload['govid'],
             create_date=date.today()
         )
         return jsonify(
