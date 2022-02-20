@@ -23,6 +23,19 @@ def get_listings():
         return jsonify(
             message='Could not retreive listings.'
         ), 204
+    
+@listings.route('get_listing_by_id', methods=['GET'])
+def get_listing_by_id():
+    try:
+        listing_dict=model_to_dict(models.Listings.get(request.args.get('id')))
+        return jsonify(
+            listing=listing_dict,
+            message='Successfully retrieved listing.'
+        ), 200
+    except:
+        return jsonify(
+            message='Could not retreive listing.'
+        ), 204
 
 
 @listings.route('create_listing', methods=['POST'])
