@@ -1,3 +1,4 @@
+from email import charset
 import os
 from playhouse.db_url import connect
 from enum import unique
@@ -21,7 +22,8 @@ class Listings(Model):
     mileage = CharField()
     zipcode = CharField()
     lien = BooleanField()
-
+    vin = CharField()
+    price = CharField()
     class Meta:
         database = DATABASE
 
