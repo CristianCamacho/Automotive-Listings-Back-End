@@ -2,6 +2,8 @@ from flask import Blueprint, json, request, jsonify
 from resources.cache import cache
 from playhouse.shortcuts import model_to_dict
 import models
+import requests
+import xmltodict
 from datetime import date
 
 listings = Blueprint('listings', 'listings')
@@ -13,7 +15,6 @@ def get_listings():
 
     try:
         for listing in models.Listings.select():
-            print(listing)
             listings_dict.append(model_to_dict(listing))
         return jsonify(
             listings=listings_dict,
@@ -27,7 +28,7 @@ def get_listings():
 @listings.route('get_listing_by_id', methods=['GET'])
 def get_listing_by_id():
     try:
-        listing_dict=model_to_dict(models.Listings.get(request.args.get('id')))
+        listing_dict=model_to_dict(models.Listings.get(models.Listings.id == request.args.get('id')))
         return jsonify(
             listing=listing_dict,
             message='Successfully retrieved listing.'
@@ -43,9 +44,26 @@ def create_listing():
     payload = request.get_json()
 
     try:
+        r = requests.get('https://www.fueleconomy.gov/ws/rest/vehicle/%s' % (payload['govid']))
+
+        dict_from_xml_vehicle = xmltodict.parse(r.content)
         created_listing = models.Listings.create(
             gov_vehicle_id=payload['govid'],
-            create_date=date.today()
+            mileage=payload['mileage'],
+            zipcode=payload['zipcode'],
+            vin=payload['vin'],
+            price=payload['price'],
+            lien=payload['lien'],
+            create_date=date.today(),
+            year=dict_from_xml_vehicle['vehicle']['year'],
+            make=dict_from_xml_vehicle['vehicle']['make'],
+            model=dict_from_xml_vehicle['vehicle']['model'],
+            fuel=dict_from_xml_vehicle['vehicle']['fuelType'],
+            city=dict_from_xml_vehicle['vehicle']['city08'],
+            highway=dict_from_xml_vehicle['vehicle']['highway08'],
+            trans=dict_from_xml_vehicle['vehicle']['trany'],
+            cylinders=dict_from_xml_vehicle['vehicle']['cylinders'],
+            drive=dict_from_xml_vehicle['vehicle']['drive']
         )
         return jsonify(
             data=model_to_dict(created_listing),

@@ -88,5 +88,4 @@ def get_by_govid():
         trans=dict_from_xml_vehicle['vehicle']['trany'],
         cylinders=dict_from_xml_vehicle['vehicle']['cylinders'],
         drive=dict_from_xml_vehicle['vehicle']['drive']
-        
     ), 200

@@ -30,12 +30,10 @@ app.register_blueprint(listings, url_prefix='/api/v1/listings')
 
 @app.before_request
 def before_request():
-    print("you should see this before each request") 
     models.DATABASE.connect()
 
     @after_this_request 
     def after_request(response):
-        print("you should see this after each request") 
         models.DATABASE.close()
         return response 
 
