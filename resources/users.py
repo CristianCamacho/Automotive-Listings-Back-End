@@ -1,7 +1,7 @@
 from flask import Blueprint, json, request, jsonify
 from playhouse.shortcuts import model_to_dict
 from flask_bcrypt import generate_password_hash, check_password_hash
-from flask_login import login_user, current_user, logout_user
+from flask_login import login_required, login_user, current_user, logout_user
 import models
 
 users = Blueprint('users', 'users')
@@ -69,3 +69,18 @@ def get_user_by_id():
         return jsonify(
             message='Could not retreive Users.'
         ), 204
+
+@users.route('logout', methods=['GET'])
+@login_required
+def logout():
+    logout_user()
+    return jsonify(
+        message='User logged out.'
+    ), 200
+
+@users.route('get_current_user', methods=['GET'])
+@login_required
+def get_current_user():
+    return jsonify(
+        user=current_user.username
+    ), 200
