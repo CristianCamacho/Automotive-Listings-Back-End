@@ -4,8 +4,11 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 from resources.auto_info import auto_info
 from resources.listings import listings
+from resources.users import users
 from resources.cache import cache
 from flask_caching import Cache
+from flask_login import LoginManager
+from models import Users
 import os
 import models
 
@@ -23,10 +26,21 @@ app.secret_key = os.environ.get('SECRET_KEY')
 app.config.from_mapping(config)
 cache.init_app(app)
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+
 CORS(app, resources={r"/*": {"origins": os.environ.get('FRONT_END')}}, supports_credentials=True)
 
 app.register_blueprint(auto_info, url_prefix='/api/v1/auto_info')
 app.register_blueprint(listings, url_prefix='/api/v1/listings')
+app.register_blueprint(users, url_prefix='/api/v1/users')
+
+@login_manager.user_loader
+def load_user(user_id):
+    try:
+        return models.Users.get_by_id(user_id)
+    except:
+        return None
 
 @app.before_request
 def before_request():

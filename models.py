@@ -3,9 +3,15 @@ import os
 from playhouse.db_url import connect
 from enum import unique
 from peewee import *
+from flask_login import UserMixin
 
 DATABASE = SqliteDatabase('listings.sqlite')
 
+class Users(Model, UserMixin):
+    username = CharField(unique=True)
+    password = CharField(unique=True)
+    class Meta:
+        database = DATABASE
 
 class Listings(Model):
     gov_vehicle_id = CharField()
@@ -30,6 +36,6 @@ class Listings(Model):
 
 def initialize():
     DATABASE.connect()
-    DATABASE.create_tables([Listings], safe=True)
+    DATABASE.create_tables([Listings, Users], safe=True)
     print('Tables Created')
     DATABASE.close()
