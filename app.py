@@ -39,7 +39,7 @@ app.register_blueprint(users, url_prefix='/api/v1/users')
 def load_user(user_id):
     try:
         return models.Users.get_by_id(user_id)
-    except:
+    except models.DoesNotExist():
         return None
 
 @app.before_request
