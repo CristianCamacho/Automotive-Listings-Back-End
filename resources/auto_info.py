@@ -65,7 +65,7 @@ def get_options():
     list_of_options = []
 
     for item in dict_from_xml_options['menuItems']['menuItem']:
-        list_of_options.append(item['text'])
+        list_of_options.append({'id':item['value'],'option':item['text']})
 
     return jsonify(
         options=list_of_options

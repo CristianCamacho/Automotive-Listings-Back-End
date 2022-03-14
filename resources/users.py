@@ -49,11 +49,11 @@ def login():
             ), 202
         else:
             return jsonify(
-                message='Invalid credentials. pass'
+                message='Invalid credentials.'
             ), 401
     except:
         return jsonify(
-            message='Invalid credentials. user'
+            message='Invalid credentials.'
         ), 401
 
 @users.route('get_user_by_id', methods=['GET'])
