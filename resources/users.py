@@ -79,8 +79,12 @@ def logout():
     ), 200
 
 @users.route('get_current_user', methods=['GET'])
-@login_required
 def get_current_user():
-    return jsonify(
-        user=current_user.username
-    ), 200
+    if current_user.is_authenticated:
+        return jsonify(
+            user=current_user.username
+        ), 200
+    else:
+        return jsonify(
+            user='annon'
+        ), 204
