@@ -25,7 +25,6 @@ def get_years():
         years=list_of_years
     ), 200
 
-
 @auto_info.route('/get_makes', methods=['GET'])
 @cache.cached(timeout=86400, query_string=True)
 def get_makes():
@@ -41,6 +40,7 @@ def get_makes():
         makes=list_of_makes
     ), 200
 
+
 @auto_info.route('/get_models', methods=['GET'])
 @cache.cached(timeout=86400, query_string=True)
 def get_models():
@@ -49,12 +49,17 @@ def get_models():
     dict_from_xml_models = xmltodict.parse(r.content)
     list_of_models = []
 
-    for item in dict_from_xml_models['menuItems']['menuItem']:
-        list_of_models.append(item['value'])
+    if type(dict_from_xml_models['menuItems']['menuItem']) != list:
+        return jsonify(
+            models=[dict_from_xml_models['menuItems']['menuItem']['value']]
+        ), 200
+    else:
+        for item in dict_from_xml_models['menuItems']['menuItem']:
+            list_of_models.append(item['value'])
 
-    return jsonify(
-        models=list_of_models
-    ), 200
+        return jsonify(
+            models=list_of_models
+        ), 200
 
 @auto_info.route('/get_options', methods=['GET'])
 @cache.cached(timeout=86400, query_string=True)
@@ -64,12 +69,17 @@ def get_options():
     dict_from_xml_options = xmltodict.parse(r.content)
     list_of_options = []
 
-    for item in dict_from_xml_options['menuItems']['menuItem']:
-        list_of_options.append({'id':item['value'],'option':item['text']})
+    if type(dict_from_xml_options['menuItems']['menuItem']) != list:
+        return jsonify(
+            options=[{'id':dict_from_xml_options['menuItems']['menuItem']['value'],'option':dict_from_xml_options['menuItems']['menuItem']['text']}]
+        )
+    else:
+        for item in dict_from_xml_options['menuItems']['menuItem']:
+            list_of_options.append({'id':item['value'],'option':item['text']})
 
-    return jsonify(
-        options=list_of_options
-    ), 200
+        return jsonify(
+            options=list_of_options
+        ), 200
 
 @auto_info.route('/get_auto_info_by_govid', methods=['GET'])
 @cache.cached(timeout=86400, query_string=True)
