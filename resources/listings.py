@@ -1,6 +1,7 @@
 from flask import Blueprint, json, request, jsonify
 from resources.cache import cache
 from playhouse.shortcuts import model_to_dict
+from resources.cache import cache
 import models
 import requests
 import xmltodict
@@ -10,6 +11,7 @@ listings = Blueprint('listings', 'listings')
 
 
 @listings.route('get_listings', methods=['GET'])
+@cache.cached(timeout=600)
 def get_listings():
     listings_dict = []
 
@@ -24,11 +26,14 @@ def get_listings():
         return jsonify(
             message='Could not retreive listings.'
         ), 204
-    
+
+
 @listings.route('get_listing_by_id', methods=['GET'])
+@cache.cached(timeout=600)
 def get_listing_by_id():
     try:
-        listing_dict=model_to_dict(models.Listings.get(models.Listings.id == request.args.get('id')))
+        listing_dict = model_to_dict(models.Listings.get(
+            models.Listings.id == request.args.get('id')))
         return jsonify(
             listing=listing_dict,
             message='Successfully retrieved listing.'
@@ -44,7 +49,8 @@ def create_listing():
     payload = request.get_json()
 
     try:
-        r = requests.get('https://www.fueleconomy.gov/ws/rest/vehicle/%s' % (payload['govid']))
+        r = requests.get(
+            'https://www.fueleconomy.gov/ws/rest/vehicle/%s' % (payload['govid']))
 
         dict_from_xml_vehicle = xmltodict.parse(r.content)
         created_listing = models.Listings.create(
