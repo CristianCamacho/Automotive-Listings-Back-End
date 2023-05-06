@@ -25,10 +25,12 @@ def get_years():
         years=list_of_years
     ), 200
 
+
 @auto_info.route('/get_makes', methods=['GET'])
 @cache.cached(timeout=86400, query_string=True)
 def get_makes():
-    r = requests.get('https://www.fueleconomy.gov/ws/rest/vehicle/menu/make?year=%s' % (request.args.get('year')))
+    r = requests.get('https://www.fueleconomy.gov/ws/rest/vehicle/menu/make?year=%s' %
+                     (request.args.get('year')))
 
     dict_from_xml_makes = xmltodict.parse(r.content)
     list_of_makes = []
@@ -44,8 +46,9 @@ def get_makes():
 @auto_info.route('/get_models', methods=['GET'])
 @cache.cached(timeout=86400, query_string=True)
 def get_models():
-    r = requests.get('https://www.fueleconomy.gov/ws/rest/vehicle/menu/model?year=%s&make=%s' % (request.args.get('year'), (request.args.get('make'))))
-    
+    r = requests.get('https://www.fueleconomy.gov/ws/rest/vehicle/menu/model?year=%s&make=%s' %
+                     (request.args.get('year'), (request.args.get('make'))))
+
     dict_from_xml_models = xmltodict.parse(r.content)
     list_of_models = []
 
@@ -61,30 +64,36 @@ def get_models():
             models=list_of_models
         ), 200
 
+
 @auto_info.route('/get_options', methods=['GET'])
 @cache.cached(timeout=86400, query_string=True)
 def get_options():
-    r = requests.get('https://www.fueleconomy.gov/ws/rest/vehicle/menu/options?year=%s&make=%s&model=%s' % (request.args.get('year'), request.args.get('make'), request.args.get('model')))
-    
+    r = requests.get('https://www.fueleconomy.gov/ws/rest/vehicle/menu/options?year=%s&make=%s&model=%s' %
+                     (request.args.get('year'), request.args.get('make'), request.args.get('model')))
+
     dict_from_xml_options = xmltodict.parse(r.content)
     list_of_options = []
-
+    print(dict_from_xml_options)
     if type(dict_from_xml_options['menuItems']['menuItem']) != list:
         return jsonify(
-            options=[{'id':dict_from_xml_options['menuItems']['menuItem']['value'],'option':dict_from_xml_options['menuItems']['menuItem']['text']}]
+            options=[{'id': dict_from_xml_options['menuItems']['menuItem']['value'],
+                      'option':dict_from_xml_options['menuItems']['menuItem']['text']}]
         )
     else:
         for item in dict_from_xml_options['menuItems']['menuItem']:
-            list_of_options.append({'id':item['value'],'option':item['text']})
+            list_of_options.append(
+                {'id': item['value'], 'option': item['text']})
 
         return jsonify(
             options=list_of_options
         ), 200
 
+
 @auto_info.route('/get_auto_info_by_govid', methods=['GET'])
 @cache.cached(timeout=86400, query_string=True)
 def get_by_govid():
-    r = requests.get('https://www.fueleconomy.gov/ws/rest/vehicle/%s' % (request.args.get('id')))
+    r = requests.get('https://www.fueleconomy.gov/ws/rest/vehicle/%s' %
+                     (request.args.get('id')))
 
     dict_from_xml_vehicle = xmltodict.parse(r.content)
 
